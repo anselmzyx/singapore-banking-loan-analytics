@@ -1,0 +1,62 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# --- Virtual environments ---
+venv/
+.venv/
+env/
+ENV/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- OS-generated temporary files ---
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# --- Secrets / environment files ---
+.env
+.env.*
+*.env
+secrets.*
+credentials.*
+
+# --- Power BI local caches / settings (not needed for the published PBIX) ---
+**/.pbi/
+*.abf
+localSettings.json
+editorSettings.json
+
+# --- Backups and temporary ZIPs ---
+*backup*/
+*.zip
+*.tmp
+*~
+
+# --- Legacy PBIP experiment (superseded by the published PBIX) ---
+# The PBIP folder-based source and the automation pass that produced it are
+# kept locally for reference but are not part of the published project --
+# the 2-page Singapore_Banking_Loan_Analytics.pbix is the sole authoritative
+# dashboard deliverable (see docs/STAGE_6_PUBLICATION_CHECKLIST.md).
+powerbi/Singapore_Banking_Loan_Analytics.pbip
+powerbi/Singapore_Banking_Loan_Analytics.Report/
+powerbi/Singapore_Banking_Loan_Analytics.SemanticModel/
+scripts/powerbi_dashboard_automation.py
+scripts/validate_powerbi_pbip.py
+docs/POWERBI_DASHBOARD_AUTOMATION_REPORT.md
+
+# --- NOT ignored (explicitly published) ---
+# powerbi/Singapore_Banking_Loan_Analytics.pbix
+# powerbi/screenshots/
+# data/raw/, data/processed/
+# scripts/clean_data.py, scripts/run_sql_analysis.py, scripts/prepare_powerbi_data.py
+# notebooks/, figures/
+# sql/, results/
+# docs/ (excluding the one file above)
+# README.md, requirements.txt

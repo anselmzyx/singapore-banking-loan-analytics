@@ -1,0 +1,28 @@
+series_id,series_name,parent_series_id,indent_level,category_role,is_leaf,row_order
+total_loans_and_advances_including_bills_financing,Total Loans And Advances Including Bills Financing,,0,total,False,0
+loans_to_businesses_total,Loans To Businesses - Total,total_loans_and_advances_including_bills_financing,4,business_total,False,1
+loans_to_businesses_agriculture_mining_and_quarrying_total,"Loans To Businesses - Agriculture, Mining And Quarrying - Total",loans_to_businesses_total,8,business_sector,False,2
+loans_to_businesses_agriculture_mining_and_quarrying_agriculture_and_fishing,"Loans To Businesses - Agriculture, Mining And Quarrying - Agriculture And Fishing",loans_to_businesses_agriculture_mining_and_quarrying_total,12,business_subsector,True,3
+loans_to_businesses_agriculture_mining_and_quarrying_mining_and_quarrying,"Loans To Businesses - Agriculture, Mining And Quarrying - Mining And Quarrying",loans_to_businesses_agriculture_mining_and_quarrying_total,12,business_subsector,True,4
+loans_to_businesses_manufacturing,Loans To Businesses - Manufacturing,loans_to_businesses_total,8,business_sector,True,5
+loans_to_businesses_building_and_construction_total,Loans To Businesses - Building And Construction - Total,loans_to_businesses_total,8,business_sector,False,6
+loans_to_businesses_building_and_construction_construction,Loans To Businesses - Building And Construction - Construction,loans_to_businesses_building_and_construction_total,12,business_subsector,True,7
+loans_to_businesses_building_and_construction_real_property_and_development_of_land,Loans To Businesses - Building And Construction - Real Property And Development Of Land,loans_to_businesses_building_and_construction_total,12,business_subsector,True,8
+loans_to_businesses_general_commerce_total,Loans To Businesses - General Commerce - Total,loans_to_businesses_total,8,business_sector,False,9
+loans_to_businesses_general_commerce_wholesale_trade,Loans To Businesses - General Commerce - Wholesale Trade,loans_to_businesses_general_commerce_total,12,business_subsector,True,10
+loans_to_businesses_general_commerce_retail_trade,Loans To Businesses - General Commerce - Retail Trade,loans_to_businesses_general_commerce_total,12,business_subsector,True,11
+loans_to_businesses_general_commerce_accommodation_and_food_services_activities,Loans To Businesses - General Commerce - Accommodation And Food Services Activities,loans_to_businesses_general_commerce_total,12,business_subsector,True,12
+loans_to_businesses_transport_storage_and_communication_total,"Loans To Businesses - Transport, Storage And Communication - Total",loans_to_businesses_total,8,business_sector,False,13
+loans_to_businesses_transport_storage_and_communication_transport_and_storage,"Loans To Businesses - Transport, Storage And Communication - Transport And Storage",loans_to_businesses_transport_storage_and_communication_total,12,business_subsector,True,14
+loans_to_businesses_transport_storage_and_communication_information_and_communications,"Loans To Businesses - Transport, Storage And Communication - Information And Communications",loans_to_businesses_transport_storage_and_communication_total,12,business_subsector,True,15
+loans_to_businesses_financial_and_insurance_activities,Loans To Businesses - Financial And Insurance Activities,loans_to_businesses_total,8,business_sector,True,16
+loans_to_businesses_professional_scientific_technical_administrative_support_service_activities,"Loans To Businesses - Professional, Scientific, Technical, Administrative, Support Service Activities",loans_to_businesses_total,8,business_sector,True,17
+loans_to_businesses_others_total,Loans To Businesses - Others - Total,loans_to_businesses_total,8,business_sector,False,18
+loans_to_businesses_others_electricity_gas_and_water_supply,"Loans To Businesses - Others - Electricity, Gas And Water Supply",loans_to_businesses_others_total,12,business_subsector,True,19
+loans_to_businesses_others_other_industries,Loans To Businesses - Others - Other Industries,loans_to_businesses_others_total,12,business_subsector,True,20
+consumer_loans_total,Consumer Loans - Total,total_loans_and_advances_including_bills_financing,4,consumer_total,False,21
+consumer_loans_housing_and_bridging_loans,Consumer Loans - Housing And Bridging Loans,consumer_loans_total,8,consumer_category,True,22
+consumer_loans_natural_persons_car_loans,Consumer Loans - Natural Persons - Car Loans,consumer_loans_total,8,consumer_category,True,23
+consumer_loans_natural_persons_credit_cards,Consumer Loans - Natural Persons - Credit Cards,consumer_loans_total,8,consumer_category,True,24
+consumer_loans_natural_persons_share_financing,Consumer Loans - Natural Persons - Share Financing,consumer_loans_total,8,consumer_category,True,25
+consumer_loans_natural_persons_others,Consumer Loans - Natural Persons - Others,consumer_loans_total,8,consumer_category,True,26
