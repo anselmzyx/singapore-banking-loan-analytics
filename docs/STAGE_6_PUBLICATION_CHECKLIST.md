@@ -35,19 +35,23 @@ All excluded files **remain intact on disk**; nothing was deleted.
 
 ## 4. Final PBIX and Screenshots Verification
 
+**At the time this checklist was first written (Stage 6A, historical):**
+
 | File | Size | SHA-256 |
 |---|---|---|
 | `powerbi/Singapore_Banking_Loan_Analytics.pbix` | 98,907 bytes | `27b5053600016257c6ea13ffed52af3ec4ed12c809de65d32f87a3fa60074d88` |
 | `powerbi/screenshots/01_portfolio_overview.png` | 217,013 bytes | `ef2ebf0de64d9b3c96bbec81f1b4f2a36fdb10a77d0d6ce9e19daea24b149ed5` |
 | `powerbi/screenshots/02_sector_exposure_growth.png` | 282,400 bytes | `3500d8f3e5ad6f865e5657912914d59bac4b3eabc2e26a6077b0018b12c742de` |
 
-Confirmed unchanged from the Stage 5 audit at the time (identical hashes), not modified during Stage 6A preparation. The PBIX was re-saved once more after this checklist was written, before the actual GitHub push; see `docs/STAGE_5_DASHBOARD_AUDIT.md` for both hashes and an explanation of what changed, and for the current published hash.
+Confirmed unchanged from the Stage 5 audit at the time (identical hashes), not modified during Stage 6A preparation. The PBIX was re-saved once more after this checklist was written, before the actual GitHub push, bringing it to 99,005 bytes; see `docs/STAGE_5_DASHBOARD_AUDIT.md` for both of those hashes and an explanation of what changed between them.
+
+**Current status (19 November 2026, V2 visual redesign):** the dashboard's visual design was reworked and both screenshots were replaced with `powerbi/screenshots/01_portfolio_overview_V2.png` and `powerbi/screenshots/02_sector_exposure_and_growth_V2.png`; the two filenames in the table above no longer exist in the repository. The current PBIX is 102,949 bytes, SHA-256 `834f6fa8320de9d444885a34b1b575efd9ae0b1d079ea6fb6d6e6892c5aa4b14`. Full current hashes for the PBIX and both `_V2` screenshots are in `docs/STAGE_5_DASHBOARD_AUDIT.md` Sections 2 and 3; they are not repeated here to avoid two copies drifting out of sync.
 
 ## 5. README Link Validation
 
-Every relative path referenced in `README.md` was checked against the actual project tree and resolves:
+Every relative path referenced in `README.md` was checked against the actual project tree and resolved at the time of this checklist:
 
-`powerbi/screenshots/01_portfolio_overview.png`, `powerbi/screenshots/02_sector_exposure_growth.png`, `docs/STAGE_2_FINDINGS.md`, `docs/STAGE_3_SQL_FINDINGS.md`, `data/processed/`, `scripts/clean_data.py`, `scripts/run_sql_analysis.py`, `sql/`, `results/`, `notebooks/01_eda.ipynb`, `powerbi/`. **All present, no broken links.**
+`powerbi/screenshots/01_portfolio_overview.png`, `powerbi/screenshots/02_sector_exposure_growth.png`, `docs/STAGE_2_FINDINGS.md`, `docs/STAGE_3_SQL_FINDINGS.md`, `data/processed/`, `scripts/clean_data.py`, `scripts/run_sql_analysis.py`, `sql/`, `results/`, `notebooks/01_eda.ipynb`, `powerbi/`. **All present, no broken links.** (The two screenshot filenames above are historical; following the 19 November 2026 V2 redesign, README now links `powerbi/screenshots/01_portfolio_overview_V2.png` and `powerbi/screenshots/02_sector_exposure_and_growth_V2.png` instead, both likewise confirmed present.)
 
 **Secrets / machine-specific settings check:** grepped all publication-intended text files (scripts, SQL, CSVs, docs, README) for credential-like patterns (API keys, passwords, tokens): **none found**. Separately grepped for the build machine's local path signature (`\\Mac\Home\...`, `/Users/anselm`) across scripts, SQL, results, docs, and README; the only match was in `docs/POWERBI_DASHBOARD_AUTOMATION_REPORT.md`, already excluded from publication (§2).
 
@@ -59,4 +63,4 @@ One caveat that cannot be fully resolved without rebuilding the model: the publi
 
 **Stage 6A (preparation, historical):** at the time this checklist was first written, GitHub publication had not been approved. No Git repository existed and nothing had been pushed; this checklist, the prepared README and the preparation ZIP were assembled for independent review ahead of that approval.
 
-**Current status:** publication was subsequently approved and completed. The project is now published publicly at [github.com/anselmzyx/singapore-banking-loan-analytics](https://github.com/anselmzyx/singapore-banking-loan-analytics) on the `main` branch. The repository contains exactly the files listed in Section 1 above, minus the exclusions in Section 2.
+**Current status:** publication was subsequently approved and completed. The project is now published publicly at [github.com/anselmzyx/singapore-banking-loan-analytics](https://github.com/anselmzyx/singapore-banking-loan-analytics) on the `main` branch. The repository contains exactly the files listed in Section 1 above, minus the exclusions in Section 2, except that the two Power BI screenshots were replaced on 19 November 2026 by the `_V2` redesign described in Section 4 above.

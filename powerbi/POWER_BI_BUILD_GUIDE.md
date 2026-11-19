@@ -399,20 +399,27 @@ DIVIDE ( [Consumer Category Balance (S$M)], [Consumer Loans (S$M)] )
 
 ## 3. Two-Page Dashboard Specification
 
-Short sector/category labels throughout use `DimCategory[display_name]`, never the raw `series_name`. No visual sums balances across months. Every trend chart places `DimMonth[period_end]` (or `year_month`) on an axis so each point independently shows that month's measure value; no visual aggregates `balance_sgd_mn` over a date range.
+This section describes the dashboard as actually published (the November 2026 visual redesign, referred to elsewhere as V2), not an earlier draft layout. Short sector/category labels throughout use `DimCategory[display_name]`, never the raw `series_name`. No visual sums balances across months. Every trend chart places `DimMonth[period_end]` (or `year_month`) on an axis so each point independently shows that month's measure value; no visual aggregates `balance_sgd_mn` over a date range.
 
-### Page 1: Banking Loan Portfolio Overview
+Both pages share one visual style: a 2560 x 1440 canvas, navy title and chart headings, a teal divider line under the page title, a light grey background, white rounded KPI card and chart containers, and a source and methodology footer. Positive growth and contribution figures are shown in teal; negative figures in a muted coral.
+
+### Page 1: Portfolio Overview
+
+Title "Singapore Banking Loan Analytics," subtitle "Portfolio Overview | Commercial Bank Lending | Jul 2021-Aug 2026."
 
 | # | Visual | Fields / Measures | Axis / Legend | Filters required | Sort | Business question |
 |---|---|---|---|---|---|---|
-| 1 | Card | `Total Loans (S$M)` | N/A | None (whole-portfolio KPI) | N/A | What is the total outstanding loan book right now (or at the selected period)? |
-| 2 | Card | `Total YoY Growth (%)` | N/A | None | N/A | How fast is the total loan book growing over the latest available 12 months? |
-| 3 | Card x2 (or one multi-row card) | `Business Share (%)`, `Consumer Share (%)` | N/A | None | N/A | What is the business-vs-consumer split of the portfolio? |
-| 4 | Line chart | `Total Loans (S$M)`, `Business Loans (S$M)`, `Consumer Loans (S$M)` | X: `DimMonth[period_end]`; Legend: the 3 measures | None (full 62-month history by default) | X axis chronological (sort by `period_end`) | How have total, business, and consumer lending evolved since Jul 2021? |
-| 5 | 100% stacked column chart | `Business Loans (S$M)`, `Consumer Loans (S$M)` | X: `DimMonth[year]`; Legend: measure | None required (see interaction note below) | Chronological (`year` is already numeric/ascending) | How has the business/consumer composition shifted year over year since the start of the series? |
-| 6 | Bar chart | `Consumer Category Balance (S$M)` or `Consumer Category Share (%)` | Y: `DimCategory[display_name]`; filtered to `category_role = "consumer_category"` | `DimCategory[category_role] = "consumer_category"` | Descending by balance | What does consumer lending consist of (housing, cards, car loans, etc.)? |
+| 1 | Card: Total Loans | `Total Loans (S$M)` | N/A | None (whole-portfolio KPI) | N/A | What is the total outstanding loan book at the selected period? |
+| 2 | Card: Business Loans | `Business Loans (S$M)` | N/A | None | N/A | How much of the book is business lending? |
+| 3 | Card: Consumer Loans | `Consumer Loans (S$M)` | N/A | None | N/A | How much of the book is consumer lending? |
+| 4 | Card: Total YoY Growth | `Total YoY Growth (%)` | N/A | None | N/A | How fast is the total loan book growing over the latest available 12 months? |
+| 5 | Line chart: Monthly Loan Portfolio Trends | `Total Loans (S$M)`, `Business Loans (S$M)`, `Consumer Loans (S$M)` | X: `DimMonth[period_end]`; Legend: the 3 measures | None (full 62-month history by default) | X axis chronological (sort by `period_end`) | How have total, business, and consumer lending evolved since Jul 2021? |
+| 6 | 100% stacked column chart: Loan Portfolio Composition | `Business Loans (S$M)`, `Consumer Loans (S$M)` | X: `DimMonth[year]`; Legend: measure | None required (see interaction note below) | Chronological (`year` is already numeric/ascending) | How has the business/consumer composition shifted year over year since the start of the series? |
+| 7 | Bar chart: Consumer Lending Breakdown | `Consumer Category Balance (S$M)` or `Consumer Category Share (%)` | Y: `DimCategory[display_name]`; filtered to `category_role = "consumer_category"` | `DimCategory[category_role] = "consumer_category"` | Descending by balance | What does consumer lending consist of (housing, cards, car loans, etc.)? |
 
-**Visual 5 detail: composition by year, without summing balances across months.** Placing `DimMonth[year]` on the X-axis groups the chart into one column per calendar year (2021–2026). Within each year-column's filter context, `Business Loans (S$M)` and `Consumer Loans (S$M)` already evaluate `MAX(DimMonth[period_end])` **within that year only**, that is, the *last reported month-end in that specific year*, before pinning `FactLoans[period_end]` to exactly that one date (Section 2.1). No DAX change is required: the existing measures are already "latest month in current filter context," and `year` is just a coarser filter context than a single month. Each column therefore shows one month's balance, never a 12-month sum.
+All four KPI cards are dynamic: because each one pins to `MAX(DimMonth[period_end])` within the current filter context (Section 2.1), selecting a Year or Month on the slicers updates every card to that period's own balance, not a sum across the selected range.
+
+**Visual 6 detail, "Loan Portfolio Composition": compares business and consumer shares by year, without summing balances across months.** Placing `DimMonth[year]` on the X-axis groups the chart into one column per calendar year (2021–2026). Within each year-column's filter context, `Business Loans (S$M)` and `Consumer Loans (S$M)` already evaluate `MAX(DimMonth[period_end])` **within that year only**, that is, the *last reported month-end in that specific year*, before pinning `FactLoans[period_end]` to exactly that one date (Section 2.1). No DAX change is required: the existing measures are already "latest month in current filter context," and `year` is just a coarser filter context than a single month. Each column therefore shows one month's balance, never a 12-month sum.
 
 Concretely, each year's column uses:
 - **2021:** Dec 2021 (last reported month that year; reporting itself only starts Jul 2021, so 2021 is a **partial-coverage year** even though its *displayed* balance is the normal December month-end).
@@ -421,22 +428,32 @@ Concretely, each year's column uses:
 
 This partial-coverage note must appear directly on the visual (e.g. a subtitle or text box: *"2021 reflects Jul to Dec only; 2026 reflects Jan to Aug only. All other years are complete calendar years."*) so a viewer does not read 2021 or 2026 as full-year figures.
 
-**Slicer interaction for visual 5:** because this chart's entire purpose is a full 2021–2026 comparison, it should **ignore** both page slicers rather than be filtered by them. Set **Edit interactions** (select the `DimMonth[year]` slicer, then Format, then Edit interactions) for visual 5, set to **None**, and repeat for the `DimMonth[year_month]` slicer → visual 5 → **None**. Without this, selecting a single `year_month` value anywhere on the page would collapse `DimMonth` to one row and make every other year's column disappear from visual 5 (since a year with no remaining rows has no `MAX(period_end)` to evaluate), breaking the full-history comparison the chart exists to show. With the interaction disabled, visual 5 always shows all 6 years regardless of what the slicers are doing to the KPI cards and line chart elsewhere on the page.
+**Slicer interaction for visual 6:** because this chart's entire purpose is a full 2021–2026 comparison, it should **ignore** both page slicers rather than be filtered by them. Set **Edit interactions** (select the `DimMonth[year]` slicer, then Format, then Edit interactions) for visual 6, set to **None**, and repeat for the `DimMonth[year_month]` slicer → visual 6 → **None**. Without this, selecting a single `year_month` value anywhere on the page would collapse `DimMonth` to one row and make every other year's column disappear from visual 6 (since a year with no remaining rows has no `MAX(period_end)` to evaluate), breaking the full-history comparison the chart exists to show. With the interaction disabled, visual 6 always shows all 6 years regardless of what the slicers are doing to the KPI cards and line chart elsewhere on the page.
 
-**Slicers on Page 1:** `DimMonth[year]` and `DimMonth[year_month]`, placed at the top of the page. Selecting a year or month updates the 4 KPI cards (filtering them to that period's latest available month) and the line chart's visible range; visual 5 is explicitly excluded from both slicers per the interaction note above so it always shows the full 2021–2026 comparison.
+**Slicers on Page 1:** `DimMonth[year]` and `DimMonth[year_month]`, placed at the top of the page. Selecting a year or month updates the 4 KPI cards (filtering them to that period's latest available month) and the line chart's visible range; visual 6 is explicitly excluded from both slicers per the interaction note above so it always shows the full 2021–2026 comparison.
 
-### Page 2: Business Sector Exposure & Growth
+### Page 2: Sector Exposure & Growth
+
+Title "Singapore Banking Loan Analytics," subtitle "Sector Exposure & Growth | Commercial Bank Lending | Jul 2021-Aug 2026."
 
 | # | Visual | Fields / Measures | Axis / Legend | Filters required | Sort | Business question |
 |---|---|---|---|---|---|---|
-| 1 | Card | `Business Loans (S$M)` | N/A | None | N/A | What is the total outstanding business loan book? |
-| 2 | Bar chart (horizontal) | `Business Sector Balance (S$M)` | Y: `DimCategory[display_name]` | `DimCategory[category_role] = "business_sector"` | Descending by balance | Which sectors carry the largest exposure right now? |
-| 3 | Bar or donut chart | `Business Sector Share (%)` | Y/Legend: `DimCategory[display_name]` | `DimCategory[category_role] = "business_sector"` | Descending by share | What proportion of business lending does each sector represent? |
-| 4 | Bar chart (horizontal, diverging) | `Business Sector YoY Change (S$M)` and/or `Business Sector YoY Growth (%)` (two similar visuals, or one with a measure-swap) | Y: `DimCategory[display_name]`; X: 0-centered | `DimCategory[category_role] = "business_sector"` | Descending by change | Which sectors grew or shrank the most over the latest 12 months, in absolute and % terms? |
-| 5 | Line chart | `Top-3 Business Sector Concentration (%)` | X: `DimMonth[period_end]` | None (full history) | Chronological | Has business-lending concentration in the top 3 sectors increased or decreased over time? |
-| 6 | Bar chart (horizontal, diverging) | `Business Sector Contribution to Business Growth (%)` | Y: `DimCategory[display_name]`; X: 0-centered, allow >100%/<0% | `DimCategory[category_role] = "business_sector"` | Descending by contribution | Which sectors are actually driving (or dragging on) the net change in business lending over the latest 12 months? |
+| 1 | Card: Business Loans | `Business Loans (S$M)` | N/A | None | N/A | What is the total outstanding business loan book? |
+| 2 | Card: Business Loans YoY Change | `Business Loans YoY Change (S$M)` | N/A | None | N/A | How much has the business book grown or shrunk over the latest 12 months, in dollar terms? |
+| 3 | Card: Top-3 Business Sector Concentration | `Top-3 Business Sector Concentration (%)` | N/A | None | N/A | How concentrated is business lending in the three largest sectors right now? |
+| 4 | Card: Business Share | `Business Share (%)` | N/A | None | N/A | What share of the total loan book is business lending? |
+| 5 | Line chart: Top-3 Business Sector Concentration Trend | `Top-3 Business Sector Concentration (%)` | X: `DimMonth[period_end]` | None (full history) | Chronological | Has business-lending concentration in the top 3 sectors increased or decreased over time? |
+| 6 | Bar chart: Business Sector Exposure Ranking | `Business Sector Balance (S$M)` | Y: `DimCategory[display_name]`; X axis titled "Outstanding Loans" | `DimCategory[category_role] = "business_sector"` | Descending by balance | Which sectors carry the largest exposure right now? |
+| 7 | Bar chart: Business Sector YoY Growth | `Business Sector YoY Growth (%)` | Y: `DimCategory[display_name]`; X: 0-centered | `DimCategory[category_role] = "business_sector"` | Descending by growth | Which sectors grew or shrank the most, in percentage terms, over the latest 12 months? |
+| 8 | Bar chart: Sector Contributions to Business Lending Growth | `Business Sector Contribution to Business Growth (%)` | Y: `DimCategory[display_name]`; X: 0-centered, allow >100%/<0% | `DimCategory[category_role] = "business_sector"` | Descending by contribution | Which sectors are actually driving (or dragging on) the net change in business lending over the latest 12 months? |
 
-**Slicers on Page 2:** `DimMonth[year_month]` (to re-point visuals 1–4 and 6 at a different "latest" month if desired) and optionally `DimCategory[display_name]` as a sector highlighter. Visual 5 (the concentration trend) is intended to stay unfiltered by month so its full trend remains visible even while other visuals are focused on one period; a page-level interaction note should be set so the `year_month` slicer does not filter visual 5 (**Edit interactions → set visual 5 to "None"** for that slicer).
+All four KPI cards are dynamic in the same way as Page 1.
+
+The published Business Sector Exposure Ranking chart (visual 6) highlights the three largest sectors in teal and the remaining five in a muted blue-grey, and displays the balances in S$ billions (e.g. S$191.0B for Building & Construction) rather than the S$M used by the underlying `Business Sector Balance (S$M)` measure above. Whether that's a Display Units override on the visual or a separate display-convenience measure isn't re-derived here; the underlying `(S$M)` values feeding it are unchanged and remain authoritative. Its X-axis is titled "Outstanding Loans."
+
+An earlier draft of this page also specified a standalone "Business Sector Share (%)" bar or donut chart. It isn't part of the published design: measure 12, `Business Sector Share (%)`, still exists in the model and is still correct, but it isn't bound to a visible visual on either published page.
+
+**Slicers on Page 2:** `DimMonth[year_month]` (to re-point visuals 1, 2, 6, 7 and 8 at a different "latest" month if desired) and optionally `DimCategory[display_name]` as a sector highlighter. Visual 5 (the concentration trend) is intended to stay unfiltered by month so its full trend remains visible even while other visuals are focused on one period; a page-level interaction note should be set so the `year_month` slicer does not filter visual 5 (**Edit interactions → set visual 5 to "None"** for that slicer).
 
 ---
 
@@ -447,13 +464,11 @@ This partial-coverage note must appear directly on the visual (e.g. a subtitle o
 3. **Create the two relationships** in Model view: drag `DimMonth[period_end]` to `FactLoans[period_end]`, and `DimCategory[series_id]` to `FactLoans[series_id]`. Confirm both show as 1:* with a single arrow (dimension → fact) in the relationship properties, and both are Active.
 4. **Set sort fields**: set `Sort by Column` for `year_month` → `year_month_sort` and `month_name` → `month_number` (Section 1.6); confirm "Mark as date table" is **not** enabled on `DimMonth`; disable Auto date/time (Section 1.7). **Leave all columns visible for now.** Do not hide anything yet (see Section 1.4); several, including `DimMonth[period_end]`, are needed to build the visuals in steps 6–7.
 5. **Create the DAX measures** from Section 2, in order (helpers first, since later measures reference them). Paste each formula exactly as written; set the format per Section 2.6 as each measure is created.
-6. **Build Page 1** per the table in Section 3: add the slicers first, then the 4 KPI cards, then the line chart, the year-by-year composition column chart (visual 5, set its Edit Interactions to "None" for both slicers, per the interaction note in Section 3, and add the partial-year subtitle/text box), and the consumer category chart. For every card and axis showing an `(S$M)` measure, set **Display units = None** (Section 2.6) as you build each visual, not as a separate pass afterward.
-7. **Build Page 2** per the table in Section 3: add the KPI card, sector ranking and share charts, the two YoY change charts, the concentration trend line, and the contribution chart. Set the Edit Interactions override noted for visual 5 on this page too (the concentration trend). Set **Display units = None** on the `(S$M)` card and chart as in step 6.
+6. **Build Page 1** per the table in Section 3: add the Year and Month slicers first, then the 4 KPI cards (Total Loans, Business Loans, Consumer Loans, Total YoY Growth), then the Monthly Loan Portfolio Trends line chart, the Loan Portfolio Composition column chart (visual 6, set its Edit Interactions to "None" for both slicers, per the interaction note in Section 3, and add the partial-year subtitle/text box), and the Consumer Lending Breakdown chart. For every card and axis showing an `(S$M)` measure, set **Display units = None** (Section 2.6) as you build each visual, not as a separate pass afterward.
+7. **Build Page 2** per the table in Section 3: add the 4 KPI cards (Business Loans, Business Loans YoY Change, Top-3 Business Sector Concentration, Business Share), then the Top-3 Business Sector Concentration Trend line chart, the Business Sector Exposure Ranking chart, the Business Sector YoY Growth chart, and the Sector Contributions to Business Lending Growth chart. Set the Edit Interactions override noted for visual 5 on this page too (the concentration trend). Set **Display units = None** on the `(S$M)` card and chart as in step 6.
 8. **Validate results, then hide technical fields.** Spot-check at least the figures in Section 5 of this document (Aug 2026 total loans, YoY growth, top-3 concentration, Financial & Insurance change and contribution) against the card/visual values shown in Power BI. Also check that selecting a full Year on the `year` slicer still shows a single month-end balance on the KPI cards (the latest month in that year), not a sum of 12 months, and that selecting a `year`/`year_month` combination from different years produces an intentional blank page rather than an error (see the incompatible-slicer note in Section 1.5); clear one slicer to confirm it recovers. Only once both pages check out, hide the columns listed in Section 1.4.
-9. **Save the PBIX** with a clear filename (e.g. `03_Singapore_Finance_Analytics.pbix`) inside the `powerbi/` folder.
+9. **Save the PBIX** as `Singapore_Banking_Loan_Analytics.pbix` inside the `powerbi/` folder.
 10. **Capture two dashboard screenshots** (one per page) once both pages look correct, for use in the final portfolio writeup.
-
-ChatGPT will walk through these steps one at a time after reviewing this document. There is no need to complete all 10 steps in one sitting.
 
 ---
 

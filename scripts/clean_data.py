@@ -13,9 +13,9 @@ indentation in the "DataSeries" column (0 / 4 / 8 / 12 spaces). This script
 parses that indentation into explicit parent_series_id links using a stack
 that walks the rows top-to-bottom, so it does not depend on fixed hardcoded
 row positions (row N is never assumed to mean a specific category). It does
-depend on the source file's own ordering convention — each row's parent must
+depend on the source file's own ordering convention: each row's parent must
 appear somewhere above it before any of its children (standard pre-order tree
-layout) — which holds for this dataset as published.
+layout), which holds for this dataset as published.
 
 All reported figures are END-OF-PERIOD STOCK BALANCES in S$ million. They
 are never summed across months, and subtotal rows are never added to their
@@ -78,7 +78,7 @@ def build_category_dimension(data_rows):
     series_ids = [slugify(name) for name in series_names]
 
     if len(set(series_ids)) != len(series_ids):
-        raise ValueError("Duplicate series_id generated from DataSeries labels — check source file.")
+        raise ValueError("Duplicate series_id generated from DataSeries labels; check source file.")
 
     # Parent assignment via indentation stack (pre-order tree traversal).
     parent_ids = []
@@ -261,7 +261,7 @@ def run_validation(long_df, categories, data_rows, month_cols):
     print(f"\n{n_pass}/{len(results)} validation checks passed.")
     if n_pass != len(results):
         raise RuntimeError(
-            f"{len(results) - n_pass} validation check(s) FAILED — see [FAIL] lines above. "
+            f"{len(results) - n_pass} validation check(s) FAILED, see [FAIL] lines above. "
             "Processed output was written but must not be used until this is resolved."
         )
     return results

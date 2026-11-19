@@ -12,7 +12,7 @@ Singapore is a major regional financial hub, and resident bank lending is a clos
 - How has top-three sector concentration evolved over time?
 - Which sectors contributed most to recent business lending growth?
 
-Every figure below is read directly from the processed data and SQL outputs described in this repository, not reconstructed from memory. The analysis is descriptive: it doesn't establish credit risk, causality or overall bank performance.
+Every figure below is read directly from the processed data and SQL outputs described in this repository. The analysis is descriptive: it doesn't establish credit risk, causality or overall bank performance.
 
 ## Data source and collection date
 
@@ -36,7 +36,7 @@ Each stage's methodology and findings are documented in full under `docs/` (see 
 
 ## Dashboard
 
-Both pages share a consistent 2560 x 1440 layout: navy headings, a teal divider under the title, a light background, white rounded visual containers, and a coordinated teal, blue and navy colour scheme. Data labels use teal for positive growth and a muted coral for negative growth, and each page closes with a source and methodology footnote. Unlike some of my other dashboards, the KPI cards here are dynamic: they respond to the Year and Month slicers rather than showing a single fixed figure.
+Both pages share a consistent 2560 x 1440 layout: navy headings, a teal divider under the title, a light background, white rounded visual containers, and a coordinated teal, blue and navy colour scheme. Data labels use teal for positive growth and a muted coral for negative growth, and each page closes with a source and methodology footnote. The KPI cards on both pages are dynamic: they respond to the Year and Month slicers rather than showing a single fixed figure.
 
 ### Page 1: Portfolio Overview
 
@@ -50,7 +50,7 @@ Titled "Singapore Banking Loan Analytics," subtitled "Portfolio Overview | Comme
 
 Titled "Singapore Banking Loan Analytics," subtitled "Sector Exposure & Growth | Commercial Bank Lending | Jul 2021-Aug 2026." Four KPI cards (Business Loans, Business Loans YoY Change, Top-3 Business Sector Concentration, Business Share), a Top-3 Business Sector Concentration Trend chart, a Business Sector Exposure Ranking chart (loan amounts in S$ billions), a Business Sector YoY Growth chart, a Sector Contributions to Business Lending Growth chart, and Year and Month slicers.
 
-Unlike some of my other portfolio projects, the Power BI report file itself (`powerbi/Singapore_Banking_Loan_Analytics.pbix`) is published in this repository, since the underlying data carries no redistribution restriction under the licence it's released under (see Attribution and licensing below).
+I'm publishing the Power BI report file itself (`powerbi/Singapore_Banking_Loan_Analytics.pbix`) in this repository, since the underlying data carries no redistribution restriction under the licence it's released under (see Attribution and licensing below).
 
 ## Key findings
 
@@ -62,12 +62,12 @@ All figures are as of August 2026, the latest month in the dataset, and are read
 - Financial & Insurance Activities grew by S$23.15B over the latest 12 months (a sector growth rate of 17.73%) and contributed 34.32% of the net 12-month increase in business loans, the largest contribution of any sector. I treat these as three distinct measures: share describes a sector's current size relative to the business book, growth rate describes how fast that one sector moved, and contribution to net growth describes how much of the portfolio's total dollar increase is attributable to it.
 - Housing & Bridging loans remained the dominant consumer category, at 66.74% of consumer lending.
 
-I'm not claiming any of this as a measure of credit risk, default probability or overall bank performance. Full findings, validation detail and sector-by-sector breakdowns are in `docs/STAGE_2_FINDINGS.md` and `docs/STAGE_3_SQL_FINDINGS.md`.
+Full findings, validation detail and sector-by-sector breakdowns are in `docs/STAGE_2_FINDINGS.md` and `docs/STAGE_3_SQL_FINDINGS.md`.
 
 ## Data-quality methodology and limitations
 
 - I validated the cleaned long-format data against the raw source, confirming exactly 1,674 observations across 27 categories and 62 months with no missing or duplicate records (`scripts/clean_data.py`).
-- The 27 reported series form a hierarchy, not 27 additive sectors. I used the documented parent-child structure throughout and never summed a subtotal together with its own children; business-sector and consumer-category comparisons use exactly the 8 and 5 respective leaf categories.
+- The 27 reported series form a hierarchy, not 27 additive sectors. I used the documented parent-child structure throughout and never summed a subtotal together with its own children; business-sector comparisons use exactly the 8 mutually exclusive top-level business sectors, not the 11 finer subsectors nested under 5 of them, which I excluded from additive totals to avoid double-counting, and consumer-category comparisons use the 5 mutually exclusive consumer categories.
 - Outstanding balances are end-of-period stocks. I never summed them across months, and month-over-month and 12-month changes are balance comparisons, not new loan origination volumes.
 - The reporting series begins July 2021 following a MAS methodology revision (Notices 610 and 1003); the earlier, discontinued series isn't included.
 - Published figures carry small rounding residuals (around S$0.1M to S$0.2M) at subtotal levels, which I reconciled and documented rather than treating as errors.
