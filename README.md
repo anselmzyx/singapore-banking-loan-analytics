@@ -36,17 +36,19 @@ Each stage's methodology and findings are documented in full under `docs/` (see 
 
 ## Dashboard
 
+Both pages share a consistent 2560 x 1440 layout: navy headings, a teal divider under the title, a light background, white rounded visual containers, and a coordinated teal, blue and navy colour scheme. Data labels use teal for positive growth and a muted coral for negative growth, and each page closes with a source and methodology footnote. Unlike some of my other dashboards, the KPI cards here are dynamic: they respond to the Year and Month slicers rather than showing a single fixed figure.
+
 ### Page 1: Portfolio Overview
 
-![Portfolio Overview dashboard page showing total, business and consumer loan KPIs, a monthly trend line, year-over-year composition and a consumer lending breakdown](powerbi/screenshots/01_portfolio_overview.png)
+![Portfolio Overview dashboard page showing total, business and consumer loan KPIs, a monthly trend line, loan portfolio composition by year and a consumer lending breakdown](powerbi/screenshots/01_portfolio_overview_V2.png)
 
-Total, business and consumer loan KPIs, the latest 12-month growth rate, a monthly trend from July 2021, year-over-year business-versus-consumer composition, and a consumer lending breakdown, with Year and Reporting Month slicers.
+Titled "Singapore Banking Loan Analytics," subtitled "Portfolio Overview | Commercial Bank Lending | Jul 2021-Aug 2026." Four KPI cards (Total Loans, Business Loans, Consumer Loans, Total YoY Growth), a Monthly Loan Portfolio Trends chart, a Loan Portfolio Composition by Year chart, a Consumer Lending Breakdown chart, and Year and Month slicers.
 
 ### Page 2: Sector Exposure & Growth
 
-![Sector Exposure and Growth dashboard page showing business lending KPIs, a ranked sector exposure chart, concentration trend, sector growth rates and growth contributions](powerbi/screenshots/02_sector_exposure_growth.png)
+![Sector Exposure and Growth dashboard page showing business lending KPIs, the top-3 sector concentration trend, a sector exposure ranking, sector YoY growth and growth contributions](powerbi/screenshots/02_sector_exposure_and_growth_V2.png)
 
-Business lending KPIs, a ranked sector exposure chart, the top-three sector concentration trend, sector-level 12-month growth rates, and each sector's contribution to net business lending growth.
+Titled "Singapore Banking Loan Analytics," subtitled "Sector Exposure & Growth | Commercial Bank Lending | Jul 2021-Aug 2026." Four KPI cards (Business Loans, Business Loans YoY Change, Top-3 Business Sector Concentration, Business Share), a Top-3 Business Sector Concentration Trend chart, a Business Sector Exposure Ranking chart (loan amounts in S$ billions), a Business Sector YoY Growth chart, a Sector Contributions to Business Lending Growth chart, and Year and Month slicers.
 
 Unlike some of my other portfolio projects, the Power BI report file itself (`powerbi/Singapore_Banking_Loan_Analytics.pbix`) is published in this repository, since the underlying data carries no redistribution restriction under the licence it's released under (see Attribution and licensing below).
 
