@@ -36,13 +36,13 @@ Each stage's methodology and findings are documented in full under `docs/` (see 
 
 ## Dashboard
 
-Both pages share a consistent 2560 x 1440 layout: navy headings, a teal divider under the title, a light background, white rounded visual containers, and a coordinated teal, blue and navy colour scheme. Data labels use teal for positive growth and a muted coral for negative growth, and each page closes with a source and methodology footnote. The KPI cards on both pages are dynamic: they respond to the Year and Month slicers rather than showing a single fixed figure.
+Both pages share a consistent 2560 x 1440 layout: navy headings, a teal divider under the title, a light background, white rounded visual containers, and a coordinated teal, blue and navy colour scheme. Data labels use teal for positive growth and a muted coral for negative growth, and each page closes with a source and methodology footnote. The KPI cards on both pages are dynamic: they respond to the Year and Month slicers rather than showing a single fixed figure, and each card shows the latest month inside the selected period, not a sum across months. Balances are displayed in S$ billions (the source data is in S$ millions). Two charts deliberately ignore both slicers so their full history stays visible (Page 1's composition-by-year chart and Page 2's concentration trend), and Page 1's monthly trend responds to the Year slicer only. I checked this behaviour manually in Power BI Desktop; the build guide records the tests and what was and wasn't independently verified.
 
 ### Page 1: Portfolio Overview
 
 ![Portfolio Overview dashboard page showing total, business and consumer loan KPIs, a monthly trend line, loan portfolio composition by year and a consumer lending breakdown](powerbi/screenshots/01_portfolio_overview_V2.png)
 
-Titled "Singapore Banking Loan Analytics," subtitled "Portfolio Overview | Commercial Bank Lending | Jul 2021-Aug 2026." Four KPI cards (Total Loans, Business Loans, Consumer Loans, Total YoY Growth), a Monthly Loan Portfolio Trends chart, a Loan Portfolio Composition chart (comparing business and consumer lending shares by year), a Consumer Lending Breakdown chart, and Year and Month slicers.
+Titled "Singapore Banking Loan Analytics," subtitled "Portfolio Overview | Commercial Bank Lending | Jul 2021-Aug 2026." Four KPI cards (Total Loans, Business Loans, Consumer Loans, Total YoY Growth), a Monthly Loan Portfolio Trends chart, a Loan Portfolio Composition chart (comparing business and consumer lending shares by year, each year showing its latest reported month: December, or August for 2026; the data starts in July 2021, so 2021 and 2026 are partial years), a Consumer Lending Breakdown chart (shares of consumer lending), and Year and Month slicers.
 
 ### Page 2: Sector Exposure & Growth
 

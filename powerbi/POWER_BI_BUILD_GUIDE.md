@@ -2,6 +2,15 @@
 
 **Status:** This guide was originally written as a pre-build model design, DAX measure set, and dashboard specification, for manual construction in Power BI Desktop. **The two-page dashboard described here has since been built and published**, as `powerbi/Singapore_Banking_Loan_Analytics.pbix`. The DAX formulas below were checked for logical correctness against the approved Stage 2/3 outputs using Python before the build, and the measures and visual interactions feeding the visuals that actually appear on the published pages were subsequently exercised and visually confirmed in Power BI Desktop (see Section 5 and 6, and `docs/STAGE_5_DASHBOARD_AUDIT.md`, for the exact validation scope). This guide remains the authoritative record of the model design and DAX, and doubles as build instructions for reproducing the dashboard from scratch if ever needed.
 
+**Update, 20 November 2026 (final as-built corrections).** The original design below is kept, and the places where the final dashboard differs are labelled. The differences are: (1) the cards and the sector-balance chart use five **S$ billion display measures** (new §2.7); (2) the final slicer interactions (new §3.1, which supersedes the interaction notes in §3); and (3) the Page 1 Consumer Lending Breakdown shows shares rather than balances. How each statement is established:
+
+| Label | Meaning |
+|---|---|
+| **Static check** | Read from the report definition (the `Report/definition/` JSON inside the saved `.pbix`): which measures each visual uses, display-unit settings, saved slicer selections and interaction settings. Nothing was opened or run in Power BI. |
+| **Owner-supplied** | DAX copied from Power BI Desktop by the project owner. It was not extracted from the PBIX's compressed data model and has not been independently re-run. |
+| **Manual test** | Behaviour the project owner checked by hand in Power BI Desktop (§3.1). Not independently re-run. |
+| **Data check** | A value compared with `results/` or `data/processed/`. |
+
 ---
 
 ## 1. Data Model
@@ -90,7 +99,7 @@ Instead, every time-comparison measure in this guide uses the explicit `DimMonth
 
 ## 2. DAX Measures
 
-All measures below are the single authoritative version; no conflicting duplicates exist elsewhere in this project. Create them in a dedicated **measures table** (e.g. a small disconnected table named `_Measures`) or directly inside `FactLoans`, whichever the builder prefers; grouping by the headings below (as Display Folders) is recommended.
+All measures below are the original design and the base calculations (S$ million). The final dashboard also uses five S$ billion display measures that wrap them (§2.7). No conflicting duplicates of the base measures exist elsewhere in this project. Create them in a dedicated **measures table** (e.g. a small disconnected table named `_Measures`) or directly inside `FactLoans`, whichever the builder prefers; grouping by the headings below (as Display Folders) is recommended.
 
 ### 2.0 Helper measures
 
@@ -386,6 +395,7 @@ DIVIDE ( [Consumer Category Balance (S$M)], [Consumer Loans (S$M)] )
 | Measure type | Format |
 |---|---|
 | All `(S$M)` measures | Custom format `"S$"#,##0.0`. Values are **already in S$ million** from the source data. Do **not** apply Power BI's built-in thousands/millions dynamic scaling (e.g. a `,,` suffix) on top of this, or figures will be divided by a further 1,000,000. |
+| The five `(S$B)` display measures (§2.7) | Already divided by 1,000 in the measure. Presented as S$ billions with one decimal place (for example S$966.4B), with Display units **None** on every visual. Never divide an `(S$B)` value by 1,000 again. |
 | All `(%)` measures | Built-in **Percentage** format, 1–2 decimal places (e.g. `0.0%`). All percentage DAX above uses `DIVIDE()` returning a raw ratio (e.g. `0.6022`). **Never multiply by 100 in the DAX** when the field format is already Percentage, or the display will read `6022.0%`. |
 | `DimMonth[year_month]` / `month_name` on axes | Text, sorted per Section 1.6, reads as `"2021-07"` or `"July"`, not a raw date-time. |
 
@@ -394,6 +404,66 @@ DIVIDE ( [Consumer Category Balance (S$M)], [Consumer Loans (S$M)] )
 - For every card, chart axis, and data label showing an `(S$M)` measure: open **Format visual → [Callout value / Y-axis / Data labels] → Display units**, and set it explicitly to **None**. Do not leave it on "Auto."
 - Label every visual title or subtitle that shows a balance with the unit explicitly, e.g. *"Total Outstanding Loans (S$ million)"*. Do not rely on the axis or the measure name alone to convey the unit.
 - Percentage measures are unaffected by Display units (they are not scaled the same way), but double-check each one is set to the Percentage format type (Section above), not a Decimal/General number that happens to look similar.
+- **The final dashboard also uses `(S$B)` display measures (§2.7).** They are already divided by 1,000, so the same rule applies to them: Display units **None**. Setting Display units to Billions on an `(S$B)` measure would scale it a second time (966.4 would show as roughly 0.0B). Convert once, in the measure.
+
+### 2.7 As-built additions: S$ billion display measures (owner-supplied)
+
+The cards and the Business Sector Exposure Ranking chart show balances in S$ billions (for example S$966.4B). They do this through five display-convenience measures that divide the S$ million base measures by 1,000. The owner copied the formulas below from Power BI Desktop on 20 November 2026. **Owner-supplied:** they were not extracted from the PBIX's compressed data model.
+
+**Units, layer by layer (convert exactly once):**
+
+| Layer | Unit | Aug 2026 total loans | Where |
+|---|---|---|---|
+| Source value | S$ million | 966,432.7 | `FactLoans[balance_sgd_mn]` |
+| Base DAX measure `(S$M)` | S$ million | 966,432.7 | Sections 2.0 to 2.5 |
+| Display measure `(S$B)` | S$ billion | 966.4327 | Below; equals the S$M measure ÷ 1,000 |
+| Visual formatting | no further scaling | shown as S$966.4B | Display units **None**, one decimal |
+
+```dax
+Total Loans (S$B) =
+DIVIDE([Total Loans (S$M)], 1000)
+```
+
+```dax
+Business Loans (S$B) =
+DIVIDE([Business Loans (S$M)], 1000)
+```
+
+```dax
+Consumer Loans (S$B) =
+DIVIDE([Consumer Loans (S$M)], 1000)
+```
+
+```dax
+Business Loans YoY Change (S$B) =
+DIVIDE ( [Business Loans YoY Change (S$M)], 1000 )
+```
+
+```dax
+Business Sector Balance (S$B) =
+DIVIDE (
+    [Business Sector Balance (S$M)],
+    1000
+)
+```
+
+**Static check of the saved report definition:** every visual that uses an `(S$B)` measure has its display-units setting stored as the value 1, which corresponds to "None" (a static reading of the stored value, not confirmed in the Desktop interface). No visual applies a further scale. The `(S$M)` measures remain in the model and still feed the Page 1 Loan Portfolio Composition chart, which shows shares and carries no S$ axis. The measure format strings live in the compressed data model and could not be read, so the "S$" prefix and "B" suffix are presumed to come from the measures' format strings; the screenshots show the expected `S$966.4B` style.
+
+**Base measures as supplied by the owner (reviewed 20 November 2026).** `Total Loans (S$M)`, `Business Loans (S$M)`, `Consumer Loans (S$M)`, `Business Sector Balance (S$M)` and `Business Loans 12M Ago (S$M)` match Section 2 exactly. `Business Loans YoY Change (S$M)` is written differently in the final model but is logically equivalent to measure 18 above:
+
+```dax
+Business Loans YoY Change (S$M) =
+VAR CurrentBalance = [Business Loans (S$M)]
+VAR PreviousBalance = [Business Loans 12M Ago (S$M)]
+RETURN
+IF (
+    ISBLANK ( PreviousBalance ),
+    BLANK (),
+    CurrentBalance - PreviousBalance
+)
+```
+
+Measure 18 above is the original wording and is kept. `Business Loans 12M Ago (S$M)` calls `[Prev 12M Period End]` (Section 2.0, a 12-step `month_index` offset), then removes the current `DimMonth` filter before reading the earlier month. The owner did not re-supply `[Prev 12M Period End]` itself. Its documented behaviour is consistent with the tested results (**Data check**): the Dec 2025 business YoY change of +S$27.8B equals the Dec 2025 balance minus the Dec 2024 balance, and Aug 2025 gives +S$31.5B, matching `data/processed/loan_balances_long.csv`.
 
 ---
 
@@ -430,7 +500,7 @@ This partial-coverage note must appear directly on the visual (e.g. a subtitle o
 
 **Slicer interaction for visual 6:** because this chart's entire purpose is a full 2021–2026 comparison, it should **ignore** both page slicers rather than be filtered by them. Set **Edit interactions** (select the `DimMonth[year]` slicer, then Format, then Edit interactions) for visual 6, set to **None**, and repeat for the `DimMonth[year_month]` slicer → visual 6 → **None**. Without this, selecting a single `year_month` value anywhere on the page would collapse `DimMonth` to one row and make every other year's column disappear from visual 6 (since a year with no remaining rows has no `MAX(period_end)` to evaluate), breaking the full-history comparison the chart exists to show. With the interaction disabled, visual 6 always shows all 6 years regardless of what the slicers are doing to the KPI cards and line chart elsewhere on the page.
 
-**Slicers on Page 1:** `DimMonth[year]` and `DimMonth[year_month]`, placed at the top of the page. Selecting a year or month updates the 4 KPI cards (filtering them to that period's latest available month) and the line chart's visible range; visual 6 is explicitly excluded from both slicers per the interaction note above so it always shows the full 2021–2026 comparison.
+**Slicers on Page 1:** `DimMonth[year]` and `DimMonth[year_month]`, placed at the top of the page. Selecting a year or month updates the 4 KPI cards (filtering them to that period's latest available month). **As built:** the Year slicer narrows the Monthly Loan Portfolio Trends line chart, but the Month slicer does not; visual 6 is excluded from both slicers per the interaction note above, so it always shows the full 2021–2026 comparison. See §3.1 for the final settings and tests.
 
 ### Page 2: Sector Exposure & Growth
 
@@ -449,11 +519,63 @@ Title "Singapore Banking Loan Analytics," subtitle "Sector Exposure & Growth | C
 
 All four KPI cards are dynamic in the same way as Page 1.
 
-The published Business Sector Exposure Ranking chart (visual 6) highlights the three largest sectors in teal and the remaining five in a muted blue-grey, and displays the balances in S$ billions (e.g. S$191.0B for Building & Construction) rather than the S$M used by the underlying `Business Sector Balance (S$M)` measure above. Whether that's a Display Units override on the visual or a separate display-convenience measure isn't re-derived here; the underlying `(S$M)` values feeding it are unchanged and remain authoritative. Its X-axis is titled "Outstanding Loans."
+The published Business Sector Exposure Ranking chart (visual 6) highlights the three largest sectors in teal and the remaining five in a muted blue-grey, and displays the balances in S$ billions (e.g. S$191.0B for Building & Construction) rather than the S$M used by the underlying `Business Sector Balance (S$M)` measure above. That chart uses the separate display measure `Business Sector Balance (S$B)` (§2.7), not a Display Units override; the underlying `(S$M)` values feeding it are unchanged and remain authoritative. Its X-axis is titled "Outstanding Loans."
 
 An earlier draft of this page also specified a standalone "Business Sector Share (%)" bar or donut chart. It isn't part of the published design: measure 12, `Business Sector Share (%)`, still exists in the model and is still correct, but it isn't bound to a visible visual on either published page.
 
-**Slicers on Page 2:** `DimMonth[year]` and `DimMonth[year_month]`, matching Page 1, to re-point visuals 1, 2, 6, 7 and 8 at a different "latest" period if desired. Visual 5 (the concentration trend) is intended to stay unfiltered so its full trend remains visible even while other visuals are focused on one period; apply the same Edit Interactions treatment used for visual 6 on Page 1 (**Edit interactions → set both the `year` and `year_month` slicers → visual 5 → "None"**).
+**Slicers on Page 2:** `DimMonth[year]` and `DimMonth[year_month]`, matching Page 1, to re-point visuals 1, 2, 6, 7 and 8 at a different "latest" period if desired. Visual 5 (the concentration trend) is intended to stay unfiltered so its full trend remains visible even while other visuals are focused on one period; apply the same Edit Interactions treatment used for visual 6 on Page 1 (**Edit interactions → set both the `year` and `year_month` slicers → visual 5 → "None"**). **Correction (20 November 2026):** an earlier saved version of the dashboard did not have this setting, so the trend narrowed with the Year slicer. The project owner then set it in Power BI Desktop, and the saved PBIX now has it (static check, §3.1).
+
+### 3.1 Final slicer interactions and manual tests (as built)
+
+This section supersedes the interaction notes and the measure names in the tables above where they differ.
+
+**Final visual-to-measure mapping (static check of the saved report definition).** Where the Section 3 tables name an `(S$M)` measure for a card or chart, the final dashboard uses the measure shown here.
+
+| Page | Visual | Final measure(s) |
+|---|---|---|
+| 1 | Card: Total Loans | `Total Loans (S$B)` |
+| 1 | Card: Business Loans | `Business Loans (S$B)` |
+| 1 | Card: Consumer Loans | `Consumer Loans (S$B)` |
+| 1 | Card: Total YoY Growth | `Total YoY Growth (%)` |
+| 1 | Monthly Loan Portfolio Trends (line) | `Total Loans (S$B)`, `Business Loans (S$B)`, `Consumer Loans (S$B)` by `DimMonth[period_end]` |
+| 1 | Loan Portfolio Composition (100% stacked column) | `Business Loans (S$M)`, `Consumer Loans (S$M)` by `DimMonth[year]`. Shares only, so no S$ unit is shown. Each year shows its latest reported month: December, except 2026 (August); 2021 starts in July |
+| 1 | Consumer Lending Breakdown (bar) | `Consumer Category Share (%)` by `DimCategory[display_name]` (balances are not shown) |
+| 2 | Card: Business Loans | `Business Loans (S$B)` |
+| 2 | Card: Business Loans YoY Change | `Business Loans YoY Change (S$B)` |
+| 2 | Card: Top-3 Business Sector Concentration | `Top-3 Business Sector Concentration (%)` |
+| 2 | Card: Business Share | `Business Share (%)` |
+| 2 | Top-3 Business Sector Concentration Trend (line) | `Top-3 Business Sector Concentration (%)` by `DimMonth[period_end]` |
+| 2 | Business Sector Exposure Ranking (bar) | `Business Sector Balance (S$B)` by `DimCategory[display_name]` |
+| 2 | Business Sector YoY Growth (bar) | `Business Sector YoY Growth (%)` |
+| 2 | Sector Contributions to Business Lending Growth (bar) | `Business Sector Contribution to Business Growth (%)` |
+
+**Final behaviour.** "Responds" means no override is set, so Power BI's default filtering applies; "Ignores" means an explicit "no filter" interaction is set.
+
+| Page | Visual | Year slicer | Month slicer |
+|---|---|---|---|
+| 1 | Four KPI cards | Responds | Responds |
+| 1 | Monthly Loan Portfolio Trends | Responds | **Ignores** |
+| 1 | Loan Portfolio Composition | Ignores | Ignores |
+| 1 | Consumer Lending Breakdown | Responds | Responds |
+| 2 | Four KPI cards | Responds | Responds |
+| 2 | Top-3 Business Sector Concentration Trend | Ignores | Ignores |
+| 2 | Business Sector Exposure Ranking | Responds | Responds |
+| 2 | Business Sector YoY Growth | Responds | Responds |
+| 2 | Sector Contributions to Business Lending Growth | Responds | Responds |
+
+**Static check (saved PBIX, 20 November 2026).** The saved report definition contains explicit "no filter" settings for exactly: Page 1, Month slicer → Monthly Loan Portfolio Trends; Page 1, both slicers → Loan Portfolio Composition; Page 2, both slicers → Top-3 Concentration Trend. It contains no other interaction overrides, which is consistent with the table above. All four slicers (Year and Month, both pages) have no saved selection, so they open on All, and the report opens on Page 1. This is a static reading of the file, not a test of the behaviour.
+
+**Manual tests (owner-reported, Power BI Desktop; not independently re-run).** Values below were also compared with `results/` and `data/processed/` (**Data check**) and agree.
+
+| Test | Page 1 | Page 2 |
+|---|---|---|
+| **A.** Year = All, Month = All (Aug 2026) | Total S$966.4B; Business S$582.0B; Consumer S$384.4B; YoY 13.47% | Business S$582.0B; YoY change +S$67.4B; Top-3 76.87%; Business share 60.22% |
+| **B.** Year = 2025, Month = All (Dec 2025) | Total about S$886.1B; Business about S$538.7B; Consumer about S$347.4B; YoY 6.13%. Trends narrowed to 2025; Composition still showed 2021 to 2026; Consumer Breakdown followed the year | Business about S$538.7B; YoY change about +S$27.8B; Top-3 77.24%; Business share 60.79%. Ranking and both growth charts followed 2025; the concentration trend kept full history |
+| **C.** Year = 2025, Month = 2025-08 | Total S$851.7B; Business S$514.6B; Consumer S$337.1B; YoY 6.28%. Cards and Consumer Breakdown followed August 2025; the trend kept the full 2025 line (it did not collapse to one point); Composition still showed all six years | Business S$514.6B; YoY change +S$31.5B; Top-3 77.09%; Business share 60.42%. Ranking and growth charts followed August 2025; the concentration trend kept full history |
+
+Test B was where the concentration trend originally narrowed to 2025, contrary to the design above; the owner corrected the interaction and retested (Test C). Not tested: other year/month combinations, clicking on visuals to cross-filter, or opening the file on another machine.
+
+**Reading the cards:** a card shows the latest month inside the selected period (December for a full past year, August for 2026), never a sum across months. Loan balances are end-of-period stocks, so these are balance levels and changes, not new lending.
 
 ---
 
@@ -465,7 +587,7 @@ An earlier draft of this page also specified a standalone "Business Sector Share
 4. **Set sort fields**: set `Sort by Column` for `year_month` → `year_month_sort` and `month_name` → `month_number` (Section 1.6); confirm "Mark as date table" is **not** enabled on `DimMonth`; disable Auto date/time (Section 1.7). **Leave all columns visible for now.** Do not hide anything yet (see Section 1.4); several, including `DimMonth[period_end]`, are needed to build the visuals in steps 6–7.
 5. **Create the DAX measures** from Section 2, in order (helpers first, since later measures reference them). Paste each formula exactly as written; set the format per Section 2.6 as each measure is created.
 6. **Build Page 1** per the table in Section 3: add the Year and Month slicers first, then the 4 KPI cards (Total Loans, Business Loans, Consumer Loans, Total YoY Growth), then the Monthly Loan Portfolio Trends line chart, the Loan Portfolio Composition column chart (visual 6, set its Edit Interactions to "None" for both slicers, per the interaction note in Section 3, and add the partial-year subtitle/text box), and the Consumer Lending Breakdown chart. For every card and axis showing an `(S$M)` measure, set **Display units = None** (Section 2.6) as you build each visual, not as a separate pass afterward.
-7. **Build Page 2** per the table in Section 3: add the Year and Month slicers first (matching Page 1), then the 4 KPI cards (Business Loans, Business Loans YoY Change, Top-3 Business Sector Concentration, Business Share), then the Top-3 Business Sector Concentration Trend line chart (visual 5, set its Edit Interactions to "None" for both slicers, per the interaction note in Section 3), the Business Sector Exposure Ranking chart, the Business Sector YoY Growth chart, and the Sector Contributions to Business Lending Growth chart. Set **Display units = None** on the `(S$M)` card and chart as in step 6.
+7. **Build Page 2** per the table in Section 3: add the Year and Month slicers first (matching Page 1), then the 4 KPI cards (Business Loans, Business Loans YoY Change, Top-3 Business Sector Concentration, Business Share), then the Top-3 Business Sector Concentration Trend line chart (visual 5, set its Edit Interactions to "None" for both slicers, per the interaction note in Section 3), the Business Sector Exposure Ranking chart, the Business Sector YoY Growth chart, and the Sector Contributions to Business Lending Growth chart. Set **Display units = None** on the `(S$M)` card and chart as in step 6. The final dashboard's cards and Page 1 trend/Page 2 ranking charts use the `(S$B)` display measures from §2.7 instead (also Display units **None**), and Page 1's consumer breakdown uses `Consumer Category Share (%)`. Set the interactions in §3.1 after building the visuals.
 8. **Validate results, then hide technical fields.** Spot-check at least the figures in Section 5 of this document (Aug 2026 total loans, YoY growth, top-3 concentration, Financial & Insurance change and contribution) against the card/visual values shown in Power BI. Also check that selecting a full Year on the `year` slicer still shows a single month-end balance on the KPI cards (the latest month in that year), not a sum of 12 months, and that selecting a `year`/`year_month` combination from different years produces an intentional blank page rather than an error (see the incompatible-slicer note in Section 1.5); clear one slicer to confirm it recovers. Only once both pages check out, hide the columns listed in Section 1.4.
 9. **Save the PBIX** as `Singapore_Banking_Loan_Analytics.pbix` inside the `powerbi/` folder.
 10. **Capture two dashboard screenshots** (one per page) once both pages look correct, for use in the final portfolio writeup.
@@ -487,6 +609,8 @@ All of the following were checked with pandas against `powerbi/dim_month.csv`, `
 
 **Original pre-build status (historical):** when this guide was first written, no DAX formula had been run inside Power BI Desktop. Python could verify the intended numerical outputs and model logic, but it cannot execute DAX; every formula in Section 2 was designed and cross-checked against the approved Stage 2/3 figures using equivalent pandas logic only, and the guide was a draft awaiting review before manual dashboard construction began.
 
-**Current status:** the two-page dashboard has since been built, reviewed, and published as `powerbi/Singapore_Banking_Loan_Analytics.pbix`, with both pages captured in `powerbi/screenshots/`. The measures and visual interactions feeding the visuals that actually appear on the published pages have been exercised and visually confirmed in Power BI Desktop, with their displayed values matching the Section 5 anchors (full detail in `docs/STAGE_5_DASHBOARD_AUDIT.md`). This is not a claim that every one of the 28 measures in the model was individually runtime-tested: only those bound to a visible visual on the final two pages were demonstrated this way, and measures not surfaced on either page were not specifically exercised.
+**Current status:** the two-page dashboard has since been built, reviewed, and published as `powerbi/Singapore_Banking_Loan_Analytics.pbix`, with both pages captured in `powerbi/screenshots/`. The measures and visual interactions feeding the visuals that actually appear on the published pages have been exercised and visually confirmed in Power BI Desktop, with their displayed values matching the Section 5 anchors (full detail in `docs/STAGE_5_DASHBOARD_AUDIT.md`). This is not a claim that every one of the 28 measures in the model was individually runtime-tested: only those bound to a visible visual on the final two pages were demonstrated this way, and measures not surfaced on either page were not specifically exercised. (The "28" is the Stage 5 audit's count, which listed three `(S$B)` measures; the final dashboard uses five, documented in §2.7, so treat the total as approximate.)
+
+**Further manual testing, 20 November 2026 (owner-reported).** The project owner tested the default view, Year = 2025, and Year = 2025 with Month = 2025-08 on both pages, and corrected the Page 2 concentration-trend interaction as a result. §3.1 records the results. A static check of the saved PBIX confirms the interaction settings and that every slicer is saved on All. Those tests have not been independently re-run, and this guide records no interactive test other than the owner's.
 
 **What genuinely has not been tested, even now:** context-transition edge cases inside `CALCULATE` beyond what the visible visuals exercise, `TOPN` tie-break behavior under real floating-point ties, the full matrix of possible slicer and filter interaction combinations beyond what's described in Section 3, and performance under load.
