@@ -60,3 +60,7 @@ docs/POWERBI_DASHBOARD_AUTOMATION_REPORT.md
 # sql/, results/
 # docs/ (excluding the one file above)
 # README.md, requirements.txt
+
+# --- Local AI-assistant instructions and working notes (not part of the project) ---
+CLAUDE.md
+.claude/
