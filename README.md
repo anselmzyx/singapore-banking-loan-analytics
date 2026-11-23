@@ -29,6 +29,7 @@ Both are published by the Singapore Department of Statistics (SingStat), sourced
 | 1. Acquisition and inspection | Python, data.gov.sg API | Verified raw CSV downloads with documented coverage, hierarchy and licensing (`docs/STAGE_1_DATA_INSPECTION.md`) |
 | 2. Cleaning and EDA | Python, pandas, matplotlib, Jupyter | Long-format fact table, category dimension and 6 EDA charts (`data/processed/`, `figures/`) |
 | 3. DuckDB SQL business analysis | DuckDB SQL | 7 analytical queries with documented results and validation (`sql/`, `results/`) |
+| 3b. BigQuery cross-check | Google BigQuery (GoogleSQL) | The same 7 queries re-implemented in BigQuery and validated against the DuckDB results (`bigquery/`) |
 | 4. Power BI preparation and dashboard | Power BI Desktop | FactLoans, DimMonth and DimCategory model, DAX measures and a two-page interactive report (`powerbi/`) |
 | 5. Publication and documentation | Git, GitHub | This reproducible, publicly published repository |
 
@@ -64,6 +65,12 @@ All figures are as of August 2026, the latest month in the dataset, and are read
 
 Full findings, validation detail and sector-by-sector breakdowns are in `docs/STAGE_2_FINDINGS.md` and `docs/STAGE_3_SQL_FINDINGS.md`.
 
+## BigQuery extension
+
+To show the analysis is not tied to one SQL engine, I re-implemented the seven DuckDB queries in GoogleSQL and ran them in Google BigQuery, using the same processed CSVs loaded into a dataset (`banking_analytics`, project `singapore-banking-analytics`, location `asia-southeast1`) with balances stored as exact `NUMERIC`. I exported each result and compared it with the DuckDB output in `results/`: all seven match on row count, columns, keys and every value, with differences limited to file formatting (for example `true` versus `True`). A further query, `bigquery/sql/00_data_validation.sql`, checks table integrity; I ran it in BigQuery and all 23 checks passed, though that output isn't stored in the repository.
+
+DuckDB remains the original local SQL implementation and Power BI remains the primary dashboard. The BigQuery sandbox tables are temporary, so the repository holds everything needed to recreate them: the SQL, the load commands and the comparison script. See `bigquery/README.md`.
+
 ## Data-quality methodology and limitations
 
 - I validated the cleaned long-format data against the raw source, confirming exactly 1,674 observations across 27 categories and 62 months with no missing or duplicate records (`scripts/clean_data.py`).
@@ -80,6 +87,7 @@ Full findings, validation detail and sector-by-sector breakdowns are in `docs/ST
 data/              Original data.gov.sg CSV exports (data/raw/), plus the cleaned fact table and category dimension (data/processed/)
 scripts/           clean_data.py (cleaning and validation), run_sql_analysis.py (DuckDB runner), prepare_powerbi_data.py (Power BI dimension builder)
 sql/               7 DuckDB SQL queries for the business analysis
+bigquery/          GoogleSQL versions of the queries, BigQuery exports, a DuckDB comparison script and a reproduction guide
 results/           7 SQL query result CSVs
 notebooks/         Exploratory data analysis (01_eda.ipynb)
 figures/           6 EDA charts (PNG)
